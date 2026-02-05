@@ -6,6 +6,7 @@ main.canRankUp = true
 main.windowType = nil
 
 local MAX_SKILLS_SHOWN = 16
+local MAX_SKILLS_CREATABLE = 35 -- Enough buttons for max window height (800)
 local MAX_CRAFT_REAGENTS = 8
 local MAX_REAGENTS_PER_LINE = 2
 local MAX_PETS_SHOWN = 14
@@ -103,6 +104,7 @@ main.ADDON_LOADED = function(self, event, addon)
     end
     main:CreateSettingsFrame()
 
+    MAX_SKILLS_SHOWN = math.floor(((TimbersWiderProfessions_DB.windowHeight or 426) - 101) / 20)
     main:CraftTradeSkillFrame()
     HideUIPanel(CraftTradeSkillFrame)
 
@@ -327,7 +329,8 @@ end
 
 function main:CraftTradeSkillFrame()
     CraftTradeSkillFrame = CreateFrame("Frame", "CraftTradeSkillFrame", UIParent, "PortraitFrameTemplate")
-    CraftTradeSkillFrame:SetSize(650, 426)
+    local savedHeight = TimbersWiderProfessions_DB.windowHeight or 426
+    CraftTradeSkillFrame:SetSize(650, savedHeight)
     CraftTradeSkillFrame:SetPoint("CENTER")
     CraftTradeSkillFrame:SetFrameStrata("HIGH")
     CraftTradeSkillFrame.TitleText:SetText("")
@@ -345,7 +348,7 @@ function main:CraftTradeSkillFrame()
 
     tinsert(UISpecialFrames, "CraftTradeSkillFrame") -- Allow escape key to close the frame.
     CreateFrame("Frame", "CraftTradeListInset", CraftTradeSkillFrame, "InsetFrameTemplate")
-    CraftTradeListInset:SetSize(340, 350)
+    CraftTradeListInset:SetSize(340, savedHeight - 76)
     CraftTradeListInset:SetPoint("BOTTOMLEFT", CraftTradeSkillFrame, "BOTTOMLEFT", 3, 0)
     
     main:AddShowOnlyAvailableCheckBox()
@@ -441,7 +444,7 @@ function main:CraftTradeSkillFrame()
     end)
 
     CreateFrame("Frame", "CraftTradeReagentsInset", CraftTradeSkillFrame, "InsetFrameTemplate")
-    CraftTradeReagentsInset:SetSize(CraftTradeSkillFrame:GetWidth() -CraftTradeListInset:GetWidth(), 350)
+    CraftTradeReagentsInset:SetSize(CraftTradeSkillFrame:GetWidth() -CraftTradeListInset:GetWidth(), savedHeight - 76)
     CraftTradeReagentsInset:SetPoint("BOTTOMRIGHT", CraftTradeSkillFrame, "BOTTOMRIGHT", -3, 0)
 
 
@@ -671,7 +674,7 @@ function main:CraftTradeSkillFrame()
     CraftTradeHighlight:SetVertexColor(0.306, 0.302, 0.306)  -- Default gray #4E4D4E
     CraftTradeHighlight:Hide()
     
-    for i = 1, MAX_SKILLS_SHOWN do
+    for i = 1, MAX_SKILLS_CREATABLE do
         -- Add a skillline button to the left of the frame.
         local skillButton = CreateFrame("Button", "CraftTradeSkillButton"..i, CraftTradeListInset)
         skillButton:SetSize(CraftTradeListInset:GetWidth()-33, 20)
@@ -813,7 +816,7 @@ function main:CraftTradeSkillFrame()
             self:SetScript("OnClick", function(self2)
                 if IsModifiedClick("CHATLINK") then return end
                 CraftTradeSkillFrame.searchBar:ClearFocus()
-                for i = 1, MAX_SKILLS_SHOWN do
+                for i = 1, MAX_SKILLS_CREATABLE do
                     _G["CraftTradeSkillButton"..i]:SetSelected(false)
                 end
                 main:SetSkillDetails(skill)
@@ -1523,6 +1526,18 @@ main.CleanOriginalFrameAttributes = function()
         CraftTradeSkillFrame.TitleContainer:SetScript("OnDragStart", nil)
         CraftTradeSkillFrame.TitleContainer:SetScript("OnDragStop", nil)
     end
+end
+
+function main:SetWindowHeight(height)
+    MAX_SKILLS_SHOWN = math.floor((height - 101) / 20)
+    local insetHeight = height - 76
+    CraftTradeSkillFrame:SetHeight(height)
+    CraftTradeListInset:SetHeight(insetHeight)
+    CraftTradeReagentsInset:SetHeight(insetHeight)
+    if main.headersList then
+        main:RefreshList()
+    end
+    CraftTradeSkillFrame:Show()
 end
 
 main.HideOriginalFrames = function()

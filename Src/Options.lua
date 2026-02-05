@@ -20,6 +20,7 @@ local defaultVariables = {
     showAlternateRanks = true,
     sortRoguePoisons = false,
     windowScale = 100,
+    windowHeight = 426,
 }
 
 function main:GetDefaultVariables()
@@ -106,11 +107,58 @@ function main:CreateSettingsFrame()
     if buildVersion < 40000 then
         createCheckBox(main.ClientLocale.ShowAlternateRanks, "showAlternateRanks", main.ClientLocale.ShowAlternateRanksTooltip)
     end
-    createCheckBox(main.ClientLocale.CanDragFrame, "canDragFrame", main.ClientLocale.CanDragFrameTooltip)
+    do
+        local canDragDefault = defaultVariables.canDragFrame
+        local function GetValue()
+            return TimbersWiderProfessions_DB.canDragFrame
+        end
+        local function SetValue(value)
+            TimbersWiderProfessions_DB.canDragFrame = value
+        end
+        local canDragSetting = Settings.RegisterProxySetting(category, "canDragFrame", type(canDragDefault), main.ClientLocale.CanDragFrame, canDragDefault, GetValue, SetValue)
+        local canDragInitializer = Settings.CreateCheckbox(category, canDragSetting, main.ClientLocale.CanDragFrameTooltip)
+
+        if canDragInitializer and canDragInitializer.AddModifier then
+            local reloadButton
+            canDragInitializer:AddModifier(function(initializer, control, name)
+                if not reloadButton then
+                    reloadButton = CreateFrame("Button", nil, control, "UIPanelButtonTemplate")
+                    reloadButton:SetText(main.ClientLocale.ReloadRequired)
+                    reloadButton:SetSize(reloadButton:GetTextWidth() + 20, 22)
+                    reloadButton:SetPoint("LEFT", control.Checkbox, "RIGHT", 8, 0)
+                    reloadButton:SetScript("OnClick", ReloadUI)
+                    reloadButton:SetScript("OnEnter", function(self)
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                        GameTooltip:SetText(main.ClientLocale.ReloadRequiredTooltip, 1, 1, 1, 1, true)
+                        GameTooltip:Show()
+                    end)
+                    reloadButton:SetScript("OnLeave", function()
+                        GameTooltip:Hide()
+                    end)
+                end
+                reloadButton:SetShown(not canDragSetting:GetValue())
+            end)
+        end
+    end
     if buildVersion < 40000 then
         createCheckBox(main.ClientLocale.SortPoisons, "sortRoguePoisons", main.ClientLocale.SortPoisonsTooltip)
     end
     createSlider(main.ClientLocale.WindowScale, "windowScale", main.ClientLocale.WindowScaleTooltip, 50, 300, 5)
+
+    do
+        local heightDefault = defaultVariables.windowHeight
+        local function GetValue()
+            return TimbersWiderProfessions_DB.windowHeight or heightDefault
+        end
+        local function SetValue(value)
+            TimbersWiderProfessions_DB.windowHeight = value
+            main:SetWindowHeight(value)
+        end
+        local setting = Settings.RegisterProxySetting(category, "windowHeight", type(heightDefault), main.ClientLocale.WindowHeight, heightDefault, GetValue, SetValue)
+        local options = Settings.CreateSliderOptions(426, 800, 10)
+        options:SetLabelFormatter(MinimalSliderWithSteppersMixin.Label.Right)
+        Settings.CreateSlider(category, setting, options, main.ClientLocale.WindowHeightTooltip)
+    end
 
     Settings.RegisterAddOnCategory(category)
 end
