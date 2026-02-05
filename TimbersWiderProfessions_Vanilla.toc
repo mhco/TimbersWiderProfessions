@@ -8,10 +8,10 @@
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: TimbersWiderProfessions_DB
 
-main.lua
-CraftFrame.lua
-TradeSkillFrame.lua
-Localization.lua
-CategoryList.lua
+Src/main.lua
+Src/CraftFrame.lua
+Src/TradeSkillFrame.lua
+Src/Localization.lua
+Src/CategoryList.lua
 Lists/Vanilla.lua
-Options.lua
+Src/Options.lua
