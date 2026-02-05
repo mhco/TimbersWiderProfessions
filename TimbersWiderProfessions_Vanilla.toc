@@ -1,0 +1,17 @@
+## Interface: 11508
+## Title: Timber's Wider Professions
+## Notes: Expanded profession/tradeskill window with new features but still as vanilla as possible.
+## Author: zeratoruspatokus, Timberwind-DreamscytheUS
+## Version: v2026.02.04
+## Category: Timber's AddOns
+## iconTexture: Interface\Icons\Trade_engineering
+## DefaultState: enabled
+## SavedVariablesPerCharacter: TimbersWiderProfessions_DB
+
+main.lua
+CraftFrame.lua
+TradeSkillFrame.lua
+Localization.lua
+CategoryList.lua
+Lists/Vanilla.lua
+Options.lua
